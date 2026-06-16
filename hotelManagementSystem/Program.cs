@@ -2,10 +2,53 @@
 {
     internal class Program
     {
-       public class Room {
+        public static void AddNewRoom(List<Room> rooms)
+        {
+            List<String> roomTypes = new List<string> { "single", "double", "suite" };
+            int roomNumber;
+            string roomType;
+            double nightPrice;
+
+            //room number
+            Console.Write("Enter a room number: ");
+            //validate the room number to enter only integers
+            while (!int.TryParse(Console.ReadLine(), out roomNumber))
+            {
+                Console.WriteLine("Invalid input! Please enter a valid room number.");
+                Console.Write("Enter the room number: ");
+            }
+            bool availableRoom = rooms.Any(r => r.RoomNumber == roomNumber);
+            if (availableRoom)
+            {
+                Console.WriteLine("The room is already booked");
+                return;
+            }
+
+            //Room type
+            Console.Write("Enter a room type( (Single / Double / Suite)): ");
+            roomType = Console.ReadLine();
+            roomType = roomType.Trim().ToLower();
+            while (!roomTypes.Contains(roomType))
+            {
+                Console.WriteLine("Invalid room type.");
+                Console.Write("Please enter Single, Double, or Suite: ");
+                roomType = Console.ReadLine().Trim().ToLower();
+            }
+            //price per night
+            Console.Write("Enter the price: ");
+            //validate the price
+            while (!double.TryParse(Console.ReadLine(), out nightPrice))
+            {
+                Console.WriteLine("Invalid input! Please enter a valid price.");
+                Console.Write("Enter the price: ");
+            }
+            rooms.Add(new Room(roomNumber, roomType, nightPrice));
+            Console.WriteLine("Room added successfully");
+        }
+        public class Room {
             //attributes
-            int RoomNumber { get; }
-            string RoomType { get; }
+            public int RoomNumber { get; }
+            public string RoomType { get; }
             private double PricePerNight;
             private bool isAvailable;
 
@@ -38,6 +81,8 @@
         static void Main(string[] args)
         {
             int choice;
+
+            
             List<Room> rooms = new List<Room>()
             {
                 new Room(101, "Single", 25.0),
@@ -54,7 +99,7 @@
             Console.Write("Enter your choice: ");
             while (!int.TryParse(Console.ReadLine(), out choice))
             {
-                Console.WriteLine("Invalid input! Please enter a number.");
+                Console.WriteLine("Invalid input!");
                 Console.Write("Enter your choice: ");
             }
             while (choice != 0)
@@ -62,7 +107,9 @@
                 switch (choice)
                 {
                     case 1:
+                        AddNewRoom(rooms);
                         break;
+
                     case 2:
                         break;
                     case 3:
