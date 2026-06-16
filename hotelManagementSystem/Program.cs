@@ -105,12 +105,62 @@ namespace hotelManagementSystem
             Console.WriteLine("Guest added successfully");
         }
 
+        public static void BookRoomGuest(List<Room> rooms, List<Guest> guests) {
+            string guestID;
+            int roomNumber;
+
+            Console.Write("Guest ID: ");
+            guestID = Console.ReadLine();
+            while (string.IsNullOrWhiteSpace(guestID))
+            {
+                Console.WriteLine("Invalid id. Try again");
+                Console.Write("Enter the guest ID: ");
+                guestID = Console.ReadLine();
+            }
+
+            Console.Write("Enter a room number: ");
+            //validate the room number to enter only positive integers
+            while (!int.TryParse(Console.ReadLine(), out roomNumber) || roomNumber < 0)
+            {
+                Console.WriteLine("Invalid input! Please enter a valid room number.");
+                Console.Write("Enter the room number: ");
+            }
+
+            Guest guest = guests.FirstOrDefault(g => g.guestId == guestID);
+            Room room = rooms.FirstOrDefault(r => r.RoomNumber == roomNumber);
+
+            if (guest == null) {
+                Console.WriteLine("Guest not found");
+                return;
+            }
+            if (room == null) {
+                Console.WriteLine("Room not found");
+                return;
+            }
+            else if (!room.isAvailable)
+            {
+                Console.WriteLine("The room is already booked");
+                return;
+            }
+
+            guest.RoomNumber = roomNumber;
+            room.isAvailable = false;
+
+            room.displayRoom();
+            guest.displayGuest();
+            double cost = guest.calculateTotalCost(room.PricePerNight);
+            Console.WriteLine("Total cost is: "+ cost);
+
+
+        }
+
+
         public class Room {
             //attributes
              public int RoomNumber;
             public string RoomType;
-            private double PricePerNight;
-            private bool isAvailable;
+            public double PricePerNight;
+            public bool isAvailable;
 
             //constructor
             public Room(int room, string type, double nightPrice) {
@@ -120,9 +170,10 @@ namespace hotelManagementSystem
                 isAvailable = true; // default
             }
 
-            public void displayRoom() { 
-            
-            
+            public void displayRoom() {
+                Console.WriteLine("The room number is: "+ RoomNumber);
+                Console.WriteLine("The room type is: " + RoomType);
+                Console.WriteLine("The room price per night is: " + PricePerNight);
             }
 
         }
@@ -143,8 +194,15 @@ namespace hotelManagementSystem
 
 
             }
-            public void displayGuest() { }
-            public void calculateTotalCost() { }
+            public void displayGuest() {
+                Console.WriteLine("Number of nights: "+totalNights);
+            }
+            public double calculateTotalCost(double price) {
+                double cost = totalNights * price;
+                return cost;
+
+
+            }
 
         }
         static void Main(string[] args)
@@ -181,8 +239,11 @@ namespace hotelManagementSystem
                     case 2:
                         RegisterNewGuest(guests);
                         break;
+
                     case 3:
+                        BookRoomGuest(rooms,guests);
                         break;
+
                     case 4:
                         break;
                     case 5:
