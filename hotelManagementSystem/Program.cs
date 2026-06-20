@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Xml.Linq;
 using static hotelManagementSystem.Program;
+using static System.Net.WebRequestMethods;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace hotelManagementSystem
@@ -154,6 +155,140 @@ namespace hotelManagementSystem
 
         }
 
+        public static void SearchFilterRooms(List<Room> rooms)
+        {
+            int choice;
+            Console.WriteLine("--- Room Menu ---");
+            Console.WriteLine("(1) Show all available rooms");
+            Console.WriteLine("(2) Filter by room type");
+            Console.WriteLine("(3) Filter by max price");
+            Console.WriteLine("(4) Room price statistics");
+            Console.WriteLine("(0) Back");
+            Console.Write("Enter choice: ");
+            choice = int.Parse(Console.ReadLine());
+
+            while (choice!=0) {
+                switch (choice) {
+                    case 1:
+                        List<Room> availableRooms = rooms.Where(r => r.isAvailable)
+                                                         .OrderBy(r => r.PricePerNight)
+                                                         .ToList();
+
+                        // Display rooms
+                        foreach (Room room in availableRooms)
+                        {
+                            Console.WriteLine($"Room: {room.RoomType} - Price per night: ${room.PricePerNight}");
+                        }
+
+                        // Display count
+                        Console.WriteLine($"Total available rooms: {availableRooms.Count}");
+                    break;
+
+                    case 2:
+                        string inputType;
+
+                        //check the user input 
+                        do
+                        {
+                            Console.Write("Enter room type: ");
+                            inputType = Console.ReadLine();
+
+                            if (string.IsNullOrWhiteSpace(inputType))
+                            {
+                                Console.WriteLine("Input cannot be empty. Please try again.");
+                            }
+
+                        } while (string.IsNullOrWhiteSpace(inputType));
+
+                        List < Room > filteredRooms = rooms
+                            .Where(r => r.RoomType.Equals(inputType, StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+
+                        // Display results
+                        foreach (Room room in filteredRooms)
+                        {
+                            Console.WriteLine($"Room: {room.RoomType} - Price per night: ${room.PricePerNight}");
+                        }
+
+                        // Display count
+                        Console.WriteLine($"Total rooms of type '{inputType}': {filteredRooms.Count}");
+                        break;
+
+                    case 3:
+                        double maxPrice;
+                        string input;
+
+                        do
+                        {
+                            Console.Write("Enter maximum price: ");
+                            input = Console.ReadLine();
+
+                            if (!double.TryParse(input, out maxPrice))
+                            {
+                                Console.WriteLine("Invalid input. Please enter a valid number.");
+                            }
+
+                        } while (!double.TryParse(input, out maxPrice));
+
+                        //filter rooms
+                        List <Room> MaxRooms = rooms
+                                               .Where(r => r.isAvailable && r.PricePerNight <= maxPrice)
+                                               .OrderBy(r => r.PricePerNight)
+                                               .ToList();
+
+
+                        // Display results
+                        foreach (Room room in MaxRooms)
+                        {
+                            Console.WriteLine($"{room.RoomType} - ${room.PricePerNight}");
+                        }
+
+                        // Display count
+                        Console.WriteLine($"Total available rooms under ${maxPrice}: {MaxRooms.Count}");
+
+                        break;
+
+                    case 4:
+                        Console.WriteLine("\n--- Room Statistics ---");
+                        // Total rooms
+                        int totalRooms = rooms.Count();
+
+                        // Available rooms
+                        int availableRoomsCount = rooms.Count(r => r.isAvailable);
+
+                        // Average price
+                        double avgPrice = Math.Round(rooms.Average(r => r.PricePerNight),3);
+                        
+
+                        // Cheapest & most expensive
+                        //double roomsMinPrice = rooms.Min(r => r.PricePerNight);
+                        //double roomsMaxPrice = rooms.Max(r => r.PricePerNight);
+                        // to can know the type (to return the full object)
+                        Room cheapestRoom = rooms.OrderBy(r => r.PricePerNight).First();
+                        Room expensiveRoom = rooms.OrderByDescending(r => r.PricePerNight).First();
+
+                        // Display
+                        Console.WriteLine($"Total rooms: {totalRooms}");
+                        Console.WriteLine($"Available rooms: {availableRoomsCount}");
+                        Console.WriteLine($"Average price: {avgPrice}");
+                        Console.WriteLine($"Cheapest price: {cheapestRoom.PricePerNight} - The type: {cheapestRoom.RoomType}");
+                        Console.WriteLine($"Most expensive price: {expensiveRoom.PricePerNight} - The type: {expensiveRoom.RoomType}");
+
+                        break;
+
+                }//switch (choice)
+                Console.WriteLine("\n--- Room Menu ---");
+                Console.WriteLine("(1) Show all available rooms");
+                Console.WriteLine("(2) Filter by room type");
+                Console.WriteLine("(3) Filter by max price");
+                Console.WriteLine("(4) Room price statistics");
+                Console.WriteLine("(0) Back");
+                Console.Write("Enter choice: ");
+                choice = int.Parse(Console.ReadLine());
+            }//while (choice!=0)
+
+        }
+
 
         public class Room {
             //attributes
@@ -245,6 +380,7 @@ namespace hotelManagementSystem
                         break;
 
                     case 4:
+                        SearchFilterRooms(rooms);
                         break;
                     case 5:
                         break;
